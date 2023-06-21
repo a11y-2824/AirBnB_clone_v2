@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from models import storage_type
+
 from models.amenity import Amenity
 from models.review import Review
 from models.base_model import BaseModel, Base
+from models import storage_type
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.orm import relationship
+
 
 if storage_type == 'db':
     place_amenity = Table('place_amenity', Base.metadata,
@@ -35,8 +37,10 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
-        reviews = relationship('Review', backref='place',cascade='all, delete, delete-orphan')
-        amenities = relationship('Amenity', secondary=place_amenity,viewonly=False, backref='place_amenities')
+        reviews = relationship('Review', backref='place',
+                               cascade='all, delete, delete-orphan')
+        amenities = relationship('Amenity', secondary=place_amenity,
+                                 viewonly=False, backref='place_amenities')
     else:
         city_id = ""
         user_id = ""
@@ -52,35 +56,31 @@ class Place(BaseModel, Base):
 
         @property
         def reviews(self):
-            """ returns list of review instances with place_id == current Place.id
-                FileStorage R/ship BTWN Place and Review
-            """
+            ''' returns list of review instance current Place.id
+                FileStorage relationship between Place and Review
+            '''
             from models import storage
-            all_reviews = storage.all(Review)
-            lists = []
-            for reviews in all_reviews.values():
-                if reviews.place_id == self.id:
-                    lists.append(reviews)
-            return lists
+            all_revs = storage.all(Review)
+            lst = []
+            for rev in all_revs.values():
+                if rev.place_id == self.id:
+                    lst.append(rev)
+            return lst
 
         @property
         def amenities(self):
-            """ returns the list of Amenity instances based on amenity_ids with
-                all Amenity.id linked to the Place
-            """
+            ''' Amenity instance'''
             from models import storage
-            all_amenities = storage.all(Amenity)
-            lists = []
-            for amenities in all_amenities.values():
-                if amenities.id in self.amenity_ids:
-                    lists.append(amenities)
-            return lists
+            all_amens = storage.all(Amenity)
+            lst = []
+            for amen in all_amens.values():
+                if amen.id in self.amenity_ids:
+                    lst.append(amen)
+            return lst
 
         @amenities.setter
         def amenities(self, obj):
-            """ adding an Amenity.id to attribute amenity_ids. accepts only Amenity
-                objects
-            """
+            ''' amenity instance'''
             if obj is not None:
                 if isinstance(obj, Amenity):
                     if obj.id not in self.amenity_ids:
