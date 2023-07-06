@@ -9,7 +9,7 @@ from models.review import Review
 from models.amenity import Amenity
 from models.base_model import Base
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 
 if getenv('HBNB_TYPE_STORAGE') == 'db':
     from models.place import place_amenity
@@ -30,7 +30,9 @@ class DBStorage:
         HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
         HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
         HBNB_ENV = getenv('HBNB_ENV')
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(HBNB_MYSQL_USER,HBNB_MYSQL_PWD,HBNB_MYSQL_HOST,HBNB_MYSQL_DB), pool_pre_ping=True)
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
+            HBNB_MYSQL_USER, HBNB_MYSQL_PWD, HBNB_MYSQL_HOST, HBNB_MYSQL_DB),
+            pool_pre_ping=True)
 
         if HBNB_ENV == 'test':
             Base.metadata.drop_all(self.__engine)
@@ -71,12 +73,14 @@ class DBStorage:
     def delete(self, obj=None):
         """ deleting from current DB session """
         if obj is not None:
-            self.__session.query(type(obj)).filter(type(obj).id == obj.id).delete()
+            self.__session.query(
+                  type(obj)).filter(type(obj).id == obj.id).delete()
 
     def reload(self):
         """reload the DB"""
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,expire_on_commit=False)
+        session_factory = sessionmaker(
+                    bind=self.__engine, expire_on_commit=False)
         self.__session = scoped_session(session_factory)()
 
     def close(self):

@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, DATETIME
 from models import storage_type
+from os import getenv
 
 Base = declarative_base()
 
@@ -61,7 +62,7 @@ class BaseModel:
             if type(dct[k]) is datetime:
                 dct[k] = dct[k].isoformat()
         if '_sa_instance_state' in dct.keys():
-            del(dct['_sa_instance_state'])
+            del (dct['_sa_instance_state'])
         return dct
 
     def delete(self):
